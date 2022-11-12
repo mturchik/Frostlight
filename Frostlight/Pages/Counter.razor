@@ -1,0 +1,38 @@
+﻿@page "/counter"
+@inject IStateService<CounterState> StateService
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @State.Count</p>
+
+<button class="btn btn-lg btn-primary" @onclick="IncrementCount"> + </button>
+<button class="btn btn-lg btn-secondary" @onclick="DecrementCount"> - </button>
+
+<br />
+<button class="btn btn-lg btn-info" @onclick="Save"> Save </button>
+
+@code {
+    private CounterState State { get; set; }
+
+    protected override void OnInitialized()
+    {
+        State = StateService.ReadState();
+    }
+
+    private void IncrementCount() => State.Count++;
+
+    private void DecrementCount() => State.Count--;
+
+    private async Task Save()
+    {
+        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        try
+        {
+            await StateService.PersistState(State, cts.Token);
+        }
+        catch (Exception)
+        {
+            // Log
+        }
+    }
+}
